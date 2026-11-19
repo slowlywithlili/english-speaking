@@ -1,0 +1,396 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Noto Sans TC",
+        "Microsoft JhengHei",
+        sans-serif;
+    background: #f5f8fb;
+    color: #334155;
+}
+
+button,
+textarea,
+input {
+    font: inherit;
+}
+
+.container {
+    width: 100%;
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 20px 16px 50px;
+}
+
+/* --------------------
+   家長輸入區
+-------------------- */
+
+.parent-screen h1 {
+    text-align: center;
+    font-size: 28px;
+    margin: 18px 0 8px;
+    color: #334155;
+}
+
+.subtitle {
+    text-align: center;
+    color: #64748b;
+    margin-bottom: 28px;
+}
+
+.card {
+    background: white;
+    border-radius: 22px;
+    padding: 22px;
+    box-shadow: 0 5px 20px rgba(30, 50, 70, 0.07);
+    margin-bottom: 18px;
+}
+
+.label {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: #475569;
+}
+
+textarea {
+    width: 100%;
+    min-height: 190px;
+    resize: vertical;
+    border: 2px solid #e2e8f0;
+    border-radius: 15px;
+    padding: 15px;
+    outline: none;
+    line-height: 1.7;
+    color: #334155;
+}
+
+textarea:focus {
+    border-color: #94a3b8;
+}
+
+.example {
+    background: #f8fafc;
+    border-radius: 14px;
+    padding: 14px;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #64748b;
+    margin-top: 12px;
+}
+
+.main-btn {
+    width: 100%;
+    border: none;
+    border-radius: 18px;
+    padding: 16px;
+    font-size: 19px;
+    font-weight: 700;
+    background: #5b8def;
+    color: white;
+    cursor: pointer;
+    transition: transform .15s;
+}
+
+.main-btn:active {
+    transform: scale(.97);
+}
+
+/* --------------------
+   練習畫面
+-------------------- */
+
+.practice-screen {
+    display: none;
+}
+
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.progress {
+    height: 9px;
+    background: #e2e8f0;
+    border-radius: 20px;
+    overflow: hidden;
+    margin-bottom: 24px;
+}
+
+.progress-inner {
+    height: 100%;
+    width: 0%;
+    background: #7aa7f8;
+    transition: width .3s;
+}
+
+.question-card {
+    background: white;
+    border-radius: 26px;
+    padding: 28px 20px 30px;
+    box-shadow: 0 6px 24px rgba(30, 50, 70, .08);
+    text-align: center;
+}
+
+.question-number {
+    color: #94a3b8;
+    font-size: 15px;
+    margin-bottom: 18px;
+}
+
+.emoji {
+    font-size: 65px;
+    margin-bottom: 15px;
+}
+
+.question {
+    font-size: 28px;
+    line-height: 1.35;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 22px;
+}
+
+.listen-btn {
+    border: none;
+    background: #eef4ff;
+    color: #4169b8;
+    border-radius: 14px;
+    padding: 12px 20px;
+    cursor: pointer;
+    font-weight: 700;
+    margin-bottom: 26px;
+}
+
+.mic-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.mic-btn {
+    width: 105px;
+    height: 105px;
+    border-radius: 50%;
+    border: none;
+    background: #5b8def;
+    color: white;
+    font-size: 42px;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(91,141,239,.28);
+    transition: transform .15s, background .15s;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+}
+
+.mic-btn.recording {
+    background: #ef6f6f;
+    transform: scale(1.08);
+    box-shadow: 0 0 0 14px rgba(239,111,111,.12);
+}
+
+.mic-text {
+    margin-top: 14px;
+    color: #64748b;
+    font-size: 15px;
+}
+
+.result {
+    display: none;
+    margin-top: 25px;
+    text-align: left;
+}
+
+.result-box {
+    border-radius: 18px;
+    padding: 18px;
+    background: #f8fafc;
+}
+
+.result-row {
+    margin: 8px 0;
+    line-height: 1.5;
+}
+
+.result-label {
+    color: #64748b;
+    font-size: 14px;
+}
+
+.result-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #334155;
+    word-break: break-word;
+}
+
+.score {
+    text-align: center;
+    font-size: 27px;
+    font-weight: 800;
+    margin: 18px 0;
+}
+
+.success {
+    color: #16a34a;
+}
+
+.fail {
+    color: #dc2626;
+}
+
+.feedback {
+    text-align: center;
+    font-size: 20px;
+    font-weight: 700;
+    margin-top: 12px;
+}
+
+.retry-btn {
+    width: 100%;
+    margin-top: 18px;
+    border: none;
+    border-radius: 15px;
+    padding: 14px;
+    background: #eaf0f8;
+    color: #475569;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.next-btn {
+    width: 100%;
+    margin-top: 12px;
+    border: none;
+    border-radius: 15px;
+    padding: 15px;
+    background: #5b8def;
+    color: white;
+    font-weight: 700;
+    font-size: 17px;
+    cursor: pointer;
+}
+
+/* --------------------
+   完成畫面
+-------------------- */
+
+.finish-screen {
+    display: none;
+    text-align: center;
+}
+
+.finish-card {
+    background: white;
+    border-radius: 26px;
+    padding: 40px 25px;
+    box-shadow: 0 6px 24px rgba(30,50,70,.08);
+}
+
+.trophy {
+    font-size: 70px;
+}
+
+.finish-title {
+    font-size: 30px;
+    font-weight: 800;
+    margin: 15px 0;
+}
+
+.final-score {
+    font-size: 25px;
+    font-weight: 700;
+    margin: 18px 0;
+}
+
+.stars {
+    font-size: 32px;
+    letter-spacing: 5px;
+}
+
+.back-btn {
+    margin-top: 25px;
+    width: 100%;
+    border: none;
+    border-radius: 15px;
+    padding: 15px;
+    background: #eef2f7;
+    color: #475569;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+/* --------------------
+   小螢幕
+-------------------- */
+
+@media (max-width: 480px) {
+
+    .container {
+        padding: 15px 12px 40px;
+    }
+
+    .parent-screen h1 {
+        font-size: 25px;
+    }
+
+    .question {
+        font-size: 25px;
+    }
+
+    .emoji {
+        font-size: 58px;
+    }
+
+    .question-card {
+        padding: 24px 16px 28px;
+    }
+}
+button:disabled { opacity:.6; cursor:wait; }
+
+.history { margin-top:24px; }
+.history h2 { font-size:18px; margin:0 0 8px; }
+.history-note { color:#64748b; font-size:13px; }
+.history-item { display:block; width:100%; text-align:left; padding:14px; margin-top:10px; border:1px solid #e2e8f0; border-radius:14px; background:white; color:#334155; cursor:pointer; }
+.history-item strong { display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.history-item small { display:block; margin-top:6px; color:#64748b; }
+.history-row { display:flex; gap:8px; align-items:stretch; margin-top:10px; }
+.history-row .history-item { flex:1; min-width:0; margin-top:0; }
+.history-add { flex-shrink:0; border:1px solid #cbd5e1; border-radius:14px; padding:12px; color:#4169b8; background:#eef4ff; cursor:pointer; font-size:14px; }
+@media(max-width:480px) { .history-row { flex-direction:column; } .history-add { padding:10px; } }
+.skip-btn { margin-top:24px; padding:12px 20px; background:#f1f5f9; border:1px solid #cbd5e1; border-radius:14px; color:#475569; cursor:pointer; }
+.reward { text-align:center; margin:16px 0; }
+.reward img { width:150px; height:150px; animation:celebrate .5s ease-out; }
+.sound-setting { display:block; margin:14px 0; color:#64748b; font-size:14px; }
+@keyframes celebrate { from { transform:scale(.65) rotate(-10deg); } to { transform:scale(1) rotate(0); } }
+@media (prefers-reduced-motion:reduce) { .reward img { animation:none; } }
+
+.transfer-tools { display:flex; flex-wrap:wrap; gap:8px; margin:14px 0; }
+.transfer-tools button,.transfer-tools label { border:1px solid #cbd5e1; background:white; border-radius:12px; padding:11px 14px; cursor:pointer; color:#475569; font-size:14px; }
+.device-help { padding:14px; border-radius:14px; background:#eef4ff; line-height:1.6; margin:14px 0; font-size:14px; }
+.backup-answer { margin-top:20px; text-align:left; color:#64748b; font-size:14px; }
+.backup-answer input { width:100%; padding:12px; border:1px solid #cbd5e1; border-radius:10px; margin:10px 0; }
+.backup-answer button { padding:10px 16px; border:0; border-radius:10px; background:#eef4ff; color:#4169b8; cursor:pointer; }
+[hidden] { display:none !important; }
+
+/* --------------------
+   版本號
+-------------------- */
+
+.app-version {
+    text-align: center;
+    font-size: 12px;
+    color: #94a3b8;
+    margin-top: 28px;
+}

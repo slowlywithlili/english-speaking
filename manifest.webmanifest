@@ -1,0 +1,16 @@
+{
+  "name": "英文口說小練習",
+  "short_name": "英文口說",
+  "description": "把今天的英文句子貼進來，聽發音、開口說，答對有獎勵。",
+  "lang": "zh-Hant",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f5f8fb",
+  "theme_color": "#5b8def",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

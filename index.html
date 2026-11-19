@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="zh-Hant">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>英文口說小練習</title>
+  <meta name="description" content="把今天的英文句子貼進來，聽發音、開口說，答對有獎勵。">
+  <meta name="theme-color" content="#5b8def">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-title" content="英文口說">
+  <link rel="stylesheet" href="css/style.css">
+ </head>
+ <body data-template-id="__page-root">
+  <main class="container">
+   <section id="parentScreen" class="parent-screen">
+    <h1 data-template-id="page-title" class="canva-text">🌱 英文口說小練習</h1>
+    <div data-template-id="subtitle" class="subtitle canva-text">把老師今天的英文作業貼進來，就可以開始練習</div>
+    <div data-template-id="input-card" class="card canva-card"><label for="practiceInput" data-template-id="input-label" class="label canva-text">今天的英文練習</label> <textarea id="practiceInput" data-template-id="practice-input" class="canva-input" placeholder="請輸入今天要練習的英文句子...
+
+例如：
+
+What is this?
+It is a cat.
+
+What color is it?
+It is black.
+
+Do you like cats?
+Yes, I do."></textarea>
+     <div data-template-id="example-box" class="example canva-panel"><span data-template-id="example-first" class="canva-text">💡 建議：每一行放一個「孩子需要回答的英文句子」。</span><br><span data-template-id="example-second" class="canva-text">空白行會自動忽略。</span>
+     </div>
+    </div><button type="button" data-template-id="start-button" class="main-btn canva-button" onclick="startPractice()">開始練習 ▶️</button>
+    <label class="sound-setting"><input id="soundEnabled" type="checkbox" checked> 答對時播放鼓勵音效（10 組圖片與旋律）</label>
+    <div id="deviceHelp" class="device-help" hidden></div>
+    <div class="transfer-tools">
+     <button type="button" onclick="sharePractice()">🔗 複製練習連結</button>
+     <button type="button" onclick="exportHistory()">📥 匯出紀錄</button>
+     <label for="historyFile">📤 匯入紀錄</label>
+     <input id="historyFile" type="file" accept="application/json,.json" hidden onchange="importHistoryFile(this)">
+    </div>
+    <p class="history-note">把練習連結傳到另一台裝置可帶入目前文字；匯出／匯入可搬移最近紀錄。這些功能不會自動同步。</p>
+    <input id="shareLinkField" type="text" readonly hidden aria-label="練習分享連結" style="width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px;">
+    <section id="historySection" class="history" aria-labelledby="historyTitle">
+     <h2 id="historyTitle">最近輸入</h2>
+     <p class="history-note">保留最近 8 次練習。點選紀錄可帶入編輯，或選「加入目前輸入」接上舊句子。紀錄只保存在這個瀏覽器。</p>
+     <div id="historyList"></div>
+    </section>
+    <p id="appVersion" class="app-version"></p>
+   </section>
+   <section id="practiceScreen" class="practice-screen">
+    <div class="top-bar"><span id="progressText">第 1 題</span> <span id="scoreText">答對 0 題</span>
+    </div>
+    <div data-template-id="progress-track" class="progress canva-progress">
+     <div id="progressInner" class="progress-inner"></div>
+    </div>
+    <div data-template-id="question-card" class="question-card canva-card">
+     <div id="questionNumber" class="question-number">
+      第 1 題
+     </div>
+     <div id="emoji" class="emoji">
+      🐱
+     </div>
+     <div id="question" class="question">
+      What is this?
+     </div><button type="button" data-template-id="listen-button" class="listen-btn canva-button" onclick="speakQuestion()">🔊 聽一次標準發音</button>
+     <div class="mic-area"><button type="button" id="micButton" data-template-id="mic-button" class="mic-btn canva-button"><span id="micIdle" data-template-id="mic-idle" class="canva-text">🎤</span><span id="micActive" data-template-id="mic-active" class="canva-text" hidden>⏹️</span></button>
+      <div data-template-id="mic-instructions" class="mic-text canva-text">點一下開始說話，再點一下結束；請等按鈕變紅再說話。</div>
+     </div>
+     <a id="openPracticeLink" href="./" target="_blank" rel="noopener" hidden style="display:block;margin-top:14px;color:#4169b8;">在新分頁開啟獨立練習網站 ↗</a>
+     <details class="backup-answer">
+      <summary>辨識不成功？改用鍵盤聽寫或輸入比對</summary>
+      <p>可用 iPad 鍵盤的麥克風聽寫英文，再按「比對文字」。這個方式依輸入文字比對，不會評估聲音。</p>
+      <label for="backupText">聽寫或輸入的英文</label>
+      <input id="backupText" type="text" autocomplete="off" placeholder="在這裡聽寫或輸入英文">
+      <button id="backupCompare" type="button" onclick="compareBackup()">比對文字</button>
+     </details>
+     <button type="button" id="skipButton" class="skip-btn" onclick="skipQuestion()">先跳過這題 →</button>
+     <div id="result" class="result">
+      <div id="reward" class="reward" hidden><img id="rewardImage" src="images/reward-01.svg" alt="微笑獎盃與彩色星星，答對了！"></div>
+      <div data-template-id="result-box" class="result-box canva-panel">
+       <div class="result-row">
+        <div data-template-id="heard-label" class="result-label canva-text">👂 辨識到的內容</div>
+        <div id="heardText" class="result-value"></div>
+       </div>
+       <div class="result-row">
+        <div data-template-id="correct-label" class="result-label canva-text">🎯 練習句子</div>
+        <div id="correctText" class="result-value"></div>
+       </div>
+      </div>
+      <p style="font-size:13px;color:#64748b">依辨識到的文字比對句子，分數僅供練習參考。</p>
+      <div id="pronunciationScore" class="score"></div>
+      <div id="feedback" class="feedback">
+       <span id="feedbackSuccess" data-template-id="success-feedback" class="canva-text" hidden>很棒！這句說對了 🎉</span><span id="feedbackFail" data-template-id="fail-feedback" class="canva-text" hidden>再聽一次，慢慢說，試試看 💪</span>
+      </div><button type="button" id="retryButton" data-template-id="retry-button" class="retry-btn canva-button" onclick="retryQuestion()">🔊 再聽一次　🎤 再說一次</button> <button type="button" id="nextButton" data-template-id="next-button" class="next-btn canva-button" onclick="nextQuestion()">下一題 →</button>
+     </div>
+    </div>
+   </section>
+   <section id="finishScreen" class="finish-screen">
+    <div data-template-id="finish-card" class="finish-card canva-card">
+     <div data-template-id="trophy" class="trophy canva-text">🎉</div>
+     <div data-template-id="finish-title" class="finish-title canva-text">練習完成！</div>
+     <div id="finalScore" class="final-score">
+      5 / 5 題
+     </div>
+     <div id="stars" class="stars">
+      ⭐⭐⭐⭐⭐
+     </div><button type="button" data-template-id="back-button" class="back-btn canva-button" onclick="backToParent()">回到輸入畫面</button>
+    </div>
+   </section>
+   <div id="notice" role="status" aria-live="polite" hidden style="margin-top:16px;padding:14px;border-radius:14px;background:#eef4ff;color:#4169b8;"></div>
+  </main>
+  <!-- 載入順序不可調換：設定 → 主程式 → 離線功能 -->
+  <script src="js/settings.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/pwa.js"></script>
+ </body>
+</html>
