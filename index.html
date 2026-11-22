@@ -76,7 +76,7 @@ Yes, I do."></textarea>
       <input id="backupText" type="text" autocomplete="off" placeholder="在這裡聽寫或輸入英文">
       <button id="backupCompare" type="button" onclick="compareBackup()">比對文字</button>
      </details>
-     <button type="button" id="skipButton" class="skip-btn" onclick="skipQuestion()">先跳過這題 →</button>
+     <div class="nav-row"><button type="button" id="prevButton" class="nav-btn" onclick="previousQuestion()">← 上一題</button> <button type="button" id="skipButton" class="skip-btn" onclick="skipQuestion()">先跳過這題 →</button></div>
      <div id="result" class="result">
       <div id="reward" class="reward" hidden><img id="rewardImage" src="images/reward-01.svg" alt="微笑獎盃與彩色星星，答對了！"></div>
       <div data-template-id="result-box" class="result-box canva-panel">

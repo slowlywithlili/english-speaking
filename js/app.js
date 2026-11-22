@@ -132,7 +132,6 @@ async function importHistoryFile(input) {
 }
 function compareBackup() {
     if (recordingState !== 'idle') { notify('請先結束錄音，或按跳過離開本題。'); return; }
-    if (passedQuestions.has(currentIndex)) return;
     const text = $('backupText').value.trim();
     if (!text) { notify('請先聽寫或輸入英文。'); return; }
     unlockSound();
@@ -280,12 +279,35 @@ function showQuestion() {
     $('reward').hidden = true;
     $('backupText').value = '';
     $('skipButton').hidden = false;
+    $('skipButton').textContent = passedQuestions.has(currentIndex) ? '下一題 →' : '先跳過這題 →';
+    $('prevButton').disabled = currentIndex === 0;
     clearNotice();
+    if (passedQuestions.has(currentIndex)) notify('這題之前已經答對了。可以再練習一次，或按「下一題」。');
     $('progressInner').style.width = currentIndex / questions.length * 100 + '%';
     $('emoji').textContent = SETTINGS.questionEmojis[Math.floor(Math.random() * SETTINGS.questionEmojis.length)];
     if (!isAppleTouch) speakTimer = setTimeout(() => {
         if ($('practiceScreen').style.display === 'block') speakQuestion();
     }, 400);
+}
+
+// 挑選朗讀聲音：依 settings.js 的 preferredVoices 順序找，找不到就用系統的英文聲音。
+// 聲音清單在部分瀏覽器是稍後才載入的，所以用 voiceschanged 重新挑一次。
+let chosenVoice = null;
+function pickVoice() {
+    if (!window.speechSynthesis) return null;
+    const englishVoices = window.speechSynthesis.getVoices().filter(voice => /^en\b|^en[-_]/i.test(voice.lang));
+    if (!englishVoices.length) return null;
+    for (const wanted of (SETTINGS.preferredVoices || [])) {
+        const match = englishVoices.find(voice => voice.name.toLowerCase().includes(wanted.toLowerCase()));
+        if (match) return match;
+    }
+    // 沒有指定的聲音時，優先用美式英文，再退回任何英文聲音。
+    return englishVoices.find(voice => /^en[-_]US/i.test(voice.lang)) || englishVoices[0];
+}
+function refreshVoice() { chosenVoice = pickVoice(); }
+if (window.speechSynthesis) {
+    refreshVoice();
+    window.speechSynthesis.addEventListener?.('voiceschanged', refreshVoice);
 }
 
 function speakQuestion() {
@@ -297,9 +319,11 @@ function speakQuestion() {
     clearNotice();
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(questions[currentIndex]);
-    utterance.lang = 'en-US';
-    utterance.rate = 0.82;
-    utterance.pitch = 1;
+    if (!chosenVoice) refreshVoice();
+    if (chosenVoice) { utterance.voice = chosenVoice; utterance.lang = chosenVoice.lang; }
+    else utterance.lang = 'en-US';
+    utterance.rate = SETTINGS.speechRate ?? 0.7;
+    utterance.pitch = SETTINGS.speechPitch ?? 1;
     window.speechSynthesis.speak(utterance);
 }
 
@@ -322,6 +346,7 @@ function updateRecordingState(state) {
     $('retryButton').disabled = state !== 'idle';
     $('nextButton').disabled = state !== 'idle';
     $('backupCompare').disabled = state !== 'idle';
+    $('prevButton').disabled = state !== 'idle' || currentIndex === 0;
 }
 function startRecording() {
     if (recordingState !== 'idle') return;
@@ -340,7 +365,6 @@ function startRecording() {
         notify('這個瀏覽器不支援網頁語音辨識。iPad 請改用 Safari；也可展開下方備用方式，以鍵盤聽寫後比對。');
         return;
     }
-    if (passedQuestions.has(currentIndex)) return;
     if (window.speechSynthesis?.speaking) { notify('請等標準發音播放完畢，再按麥克風。'); return; }
     clearTimeout(speakTimer);
     window.speechSynthesis?.cancel();
@@ -400,7 +424,7 @@ function setupRecognition() {
     };
     recognition.onresult = event => {
         if (recognition !== session) return;
-        if (recordingQuestion !== currentIndex || passedQuestions.has(currentIndex)) return;
+        if (recordingQuestion !== currentIndex) return;
         const result = event.results[event.resultIndex || 0][0];
         receivedResult = true;
         evaluateAnswer(result.transcript.trim(), result.confidence || 0);
@@ -499,12 +523,14 @@ function showResult(heard, correct, score, passed) {
     $('feedbackFail').hidden = passed;
     $('retryButton').style.display = passed ? 'none' : 'block';
     $('nextButton').style.display = passed ? 'block' : 'none';
-    if (passed && !passedQuestions.has(currentIndex)) {
-        passedQuestions.add(currentIndex);
-        correctCount++;
+    if (passed) {
         chooseReward();
         playSuccessSound();
-        $('scoreText').textContent = `答對 ${correctCount} 題`;
+        if (!passedQuestions.has(currentIndex)) {   // 同一題重複答對只計一次分數
+            passedQuestions.add(currentIndex);
+            correctCount++;
+            $('scoreText').textContent = `答對 ${correctCount} 題`;
+        }
         advanceTimer = setTimeout(advanceAfterSuccess, 2200);
     }
 }
@@ -515,18 +541,28 @@ function advanceAfterSuccess() {
     }
     nextQuestion();
 }
-function skipQuestion() {
+// 離開目前這題前：停掉播放、錄音與各種計時器
+function stopCurrentQuestion() {
     clearTimeout(speakTimer);
     clearTimeout(advanceTimer);
     clearTimeout(recordingTimer);
     window.speechSynthesis?.cancel();
     const oldSession = recognition;
-    recognition = null; // Ignore late callbacks from the skipped question.
+    recognition = null; // Ignore late callbacks from the question we are leaving.
     recordingQuestion = -1;
     try { oldSession?.abort(); } catch {}
     updateRecordingState('idle');
+}
+function skipQuestion() {
+    stopCurrentQuestion();
     if (!passedQuestions.has(currentIndex)) skippedQuestions.add(currentIndex);
     nextQuestion();
+}
+function previousQuestion() {
+    if (currentIndex === 0) return;
+    stopCurrentQuestion();
+    currentIndex--;
+    showQuestion();
 }
 function retryQuestion() {
     speakQuestion();

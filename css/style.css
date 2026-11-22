@@ -369,7 +369,10 @@ button:disabled { opacity:.6; cursor:wait; }
 .history-row .history-item { flex:1; min-width:0; margin-top:0; }
 .history-add { flex-shrink:0; border:1px solid #cbd5e1; border-radius:14px; padding:12px; color:#4169b8; background:#eef4ff; cursor:pointer; font-size:14px; }
 @media(max-width:480px) { .history-row { flex-direction:column; } .history-add { padding:10px; } }
-.skip-btn { margin-top:24px; padding:12px 20px; background:#f1f5f9; border:1px solid #cbd5e1; border-radius:14px; color:#475569; cursor:pointer; }
+.nav-row { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:24px; }
+.nav-btn { padding:12px 20px; background:#f1f5f9; border:1px solid #cbd5e1; border-radius:14px; color:#475569; cursor:pointer; }
+.nav-btn:disabled { opacity:.4; cursor:default; }
+.skip-btn { padding:12px 20px; background:#f1f5f9; border:1px solid #cbd5e1; border-radius:14px; color:#475569; cursor:pointer; }
 .reward { text-align:center; margin:16px 0; }
 .reward img { width:150px; height:150px; animation:celebrate .5s ease-out; }
 .sound-setting { display:block; margin:14px 0; color:#64748b; font-size:14px; }

@@ -7,7 +7,30 @@ const SETTINGS = {
 
     // 版本號：每次修改後加 1（例如 '1.0.1' → '1.0.2'）。
     // 輸入畫面最下方會顯示這個版本號，方便確認 iPad 已經拿到新版。
-    appVersion: '1.0.0',
+    appVersion: '1.0.1',
+
+    // 朗讀速度：1 是正常速度，數字越小越慢。建議 0.6 ～ 0.9。
+    speechRate: 0.7,
+
+    // 朗讀音高：1 是原本的高低，調高一點（例如 1.05）聽起來比較親切。
+    speechPitch: 1.05,
+
+    // 想要優先使用的朗讀聲音，依序尋找，找到哪個就用哪個。
+    // 名稱只要「包含」就算符合（不分大小寫），裝置上沒有的會自動略過。
+    // iPad／iPhone／Mac 可到「設定 → 輔助使用 → 朗讀內容 → 聲音 → 英文」
+    // 下載 Ava、Samantha 等較自然的聲音，下載後這裡就會自動用上。
+    preferredVoices: [
+        'Ava (Premium)',            // Apple 最自然的美式女聲（需另外下載）
+        'Ava (Enhanced)',
+        'Zoe (Premium)',
+        'Allison (Enhanced)',
+        'Samantha',                 // Apple 內建美式女聲
+        'Google US English',        // Chrome 內建美式女聲
+        'Microsoft Aria',           // Edge 自然語音
+        'Microsoft Jenny',
+        'Karen',
+        'Moira',
+    ],
 
     // 「複製練習連結」使用的網址。
     // 留空 '' 代表自動使用目前網站的網址，搬家也不用改。
