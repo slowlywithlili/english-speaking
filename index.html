@@ -65,6 +65,13 @@ Yes, I do."></textarea>
      <div id="question" class="question">
       What is this?
      </div><button type="button" data-template-id="listen-button" class="listen-btn canva-button" onclick="speakQuestion()">🔊 聽一次標準發音</button>
+     <div class="speed-row">
+      <label for="speedRange" class="speed-caption">語速</label>
+      <span class="speed-icon" aria-hidden="true">🐢</span>
+      <input id="speedRange" class="speed-range" type="range" min="0.4" max="1" step="0.05" value="0.55" aria-label="朗讀語速">
+      <span class="speed-icon" aria-hidden="true">🐇</span>
+      <output id="speedValue" for="speedRange" class="speed-value" aria-live="polite">慢 0.55</output>
+     </div>
      <div class="mic-area"><button type="button" id="micButton" data-template-id="mic-button" class="mic-btn canva-button"><span id="micIdle" data-template-id="mic-idle" class="canva-text">🎤</span><span id="micActive" data-template-id="mic-active" class="canva-text" hidden>⏹️</span></button>
       <div data-template-id="mic-instructions" class="mic-text canva-text">點一下開始說話，再點一下結束；請等按鈕變紅再說話。</div>
      </div>

@@ -305,6 +305,32 @@ function pickVoice() {
     return englishVoices.find(voice => /^en[-_]US/i.test(voice.lang)) || englishVoices[0];
 }
 function refreshVoice() { chosenVoice = pickVoice(); }
+
+// 語速滑桿：settings.js 的 speechRate 是預設值，孩子在練習畫面調過之後，
+// 會記在這台裝置的瀏覽器裡，下次打開就沿用。
+const speedKey = 'english-speaking-speed-v1';
+let speechRate = SETTINGS.speechRate ?? 0.7;
+try {
+    const saved = parseFloat(localStorage.getItem(speedKey));
+    if (Number.isFinite(saved) && saved >= 0.4 && saved <= 1) speechRate = saved;
+} catch { /* 不能讀取就用預設語速。 */ }
+function describeRate(rate) {
+    return (rate <= 0.45 ? '很慢' : rate <= 0.6 ? '慢' : rate <= 0.75 ? '適中' : rate <= 0.9 ? '稍快' : '正常') + ' ' + rate.toFixed(2);
+}
+function showSpeed() {
+    $('speedRange').value = speechRate;
+    $('speedValue').textContent = describeRate(speechRate);
+}
+showSpeed();
+$('speedRange').addEventListener('input', () => {
+    speechRate = parseFloat($('speedRange').value);
+    $('speedValue').textContent = describeRate(speechRate);
+});
+// 放開滑桿才唸一次，讓孩子馬上聽到調整後的速度（拖動中不會一直唸）。
+$('speedRange').addEventListener('change', () => {
+    try { localStorage.setItem(speedKey, String(speechRate)); } catch { /* 無法保存不影響本次練習。 */ }
+    if ($('practiceScreen').style.display === 'block') speakQuestion();
+});
 if (window.speechSynthesis) {
     refreshVoice();
     window.speechSynthesis.addEventListener?.('voiceschanged', refreshVoice);
@@ -322,7 +348,7 @@ function speakQuestion() {
     if (!chosenVoice) refreshVoice();
     if (chosenVoice) { utterance.voice = chosenVoice; utterance.lang = chosenVoice.lang; }
     else utterance.lang = 'en-US';
-    utterance.rate = SETTINGS.speechRate ?? 0.7;
+    utterance.rate = speechRate;
     utterance.pitch = SETTINGS.speechPitch ?? 1;
     window.speechSynthesis.speak(utterance);
 }
@@ -347,6 +373,7 @@ function updateRecordingState(state) {
     $('nextButton').disabled = state !== 'idle';
     $('backupCompare').disabled = state !== 'idle';
     $('prevButton').disabled = state !== 'idle' || currentIndex === 0;
+    $('speedRange').disabled = state !== 'idle';
 }
 function startRecording() {
     if (recordingState !== 'idle') return;
