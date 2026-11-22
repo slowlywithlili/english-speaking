@@ -312,14 +312,23 @@ const speedKey = 'english-speaking-speed-v1';
 let speechRate = SETTINGS.speechRate ?? 0.7;
 try {
     const saved = parseFloat(localStorage.getItem(speedKey));
-    if (Number.isFinite(saved) && saved >= 0.4 && saved <= 1) speechRate = saved;
+    if (Number.isFinite(saved) && saved >= 0.2 && saved <= 1) speechRate = saved;
 } catch { /* 不能讀取就用預設語速。 */ }
+// 逐字模式：把句子拆成單字一個一個唸，中間停一下。
+// iPad 的語音在太低的語速會自己「踩煞車」不再變慢，這個模式一定會更慢。
+const wordByWordKey = 'english-speaking-wordbyword-v1';
+let wordByWord = SETTINGS.wordByWord === true;
+try {
+    const saved = localStorage.getItem(wordByWordKey);
+    if (saved === '1' || saved === '0') wordByWord = saved === '1';
+} catch { /* 不能讀取就用預設值。 */ }
 function describeRate(rate) {
-    return (rate <= 0.45 ? '很慢' : rate <= 0.6 ? '慢' : rate <= 0.75 ? '適中' : rate <= 0.9 ? '稍快' : '正常') + ' ' + rate.toFixed(2);
+    return (rate <= 0.3 ? '超慢' : rate <= 0.45 ? '很慢' : rate <= 0.6 ? '慢' : rate <= 0.75 ? '適中' : rate <= 0.9 ? '稍快' : '正常') + ' ' + rate.toFixed(2);
 }
 function showSpeed() {
     $('speedRange').value = speechRate;
     $('speedValue').textContent = describeRate(speechRate);
+    $('wordByWord').checked = wordByWord;
 }
 showSpeed();
 $('speedRange').addEventListener('input', () => {
@@ -331,11 +340,39 @@ $('speedRange').addEventListener('change', () => {
     try { localStorage.setItem(speedKey, String(speechRate)); } catch { /* 無法保存不影響本次練習。 */ }
     if ($('practiceScreen').style.display === 'block') speakQuestion();
 });
+$('wordByWord').addEventListener('change', () => {
+    wordByWord = $('wordByWord').checked;
+    try { localStorage.setItem(wordByWordKey, wordByWord ? '1' : '0'); } catch { /* 無法保存不影響本次練習。 */ }
+    if ($('practiceScreen').style.display === 'block') speakQuestion();
+});
 if (window.speechSynthesis) {
     refreshVoice();
     window.speechSynthesis.addEventListener?.('voiceschanged', refreshVoice);
 }
 
+// speakToken 用來作廢「上一次的朗讀」：換題或按麥克風時加 1，
+// 還沒唸完的逐字排程就會自己停住，不會唸到下一題或錄進麥克風。
+let speakToken = 0;
+let wordGapTimer = null;
+let speakEndsAt = 0;   // 逐字模式兩個字中間的空檔，也算還在唸
+function isSpeaking() {
+    return window.speechSynthesis?.speaking || Date.now() < speakEndsAt;
+}
+function stopSpeaking() {
+    speakToken++;
+    speakEndsAt = 0;
+    clearTimeout(wordGapTimer);
+    window.speechSynthesis?.cancel();
+}
+function makeUtterance(text) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    if (!chosenVoice) refreshVoice();
+    if (chosenVoice) { utterance.voice = chosenVoice; utterance.lang = chosenVoice.lang; }
+    else utterance.lang = 'en-US';
+    utterance.rate = speechRate;
+    utterance.pitch = SETTINGS.speechPitch ?? 1;
+    return utterance;
+}
 function speakQuestion() {
     if (recordingState !== 'idle') return;
     if (!window.speechSynthesis || !window.SpeechSynthesisUtterance) {
@@ -343,14 +380,26 @@ function speakQuestion() {
         return;
     }
     clearNotice();
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(questions[currentIndex]);
-    if (!chosenVoice) refreshVoice();
-    if (chosenVoice) { utterance.voice = chosenVoice; utterance.lang = chosenVoice.lang; }
-    else utterance.lang = 'en-US';
-    utterance.rate = speechRate;
-    utterance.pitch = SETTINGS.speechPitch ?? 1;
-    window.speechSynthesis.speak(utterance);
+    stopSpeaking();
+    const token = speakToken;
+    if (!wordByWord) {
+        window.speechSynthesis.speak(makeUtterance(questions[currentIndex]));
+        return;
+    }
+    const words = questions[currentIndex].split(/\s+/).filter(Boolean);
+    const gap = SETTINGS.wordGapMs ?? 450;
+    let index = 0;
+    const speakNext = () => {
+        if (token !== speakToken || index >= words.length) return;
+        const utterance = makeUtterance(words[index++]);
+        utterance.onend = utterance.onerror = () => {
+            if (token !== speakToken || index >= words.length) return;
+            speakEndsAt = Date.now() + gap + 250;
+            wordGapTimer = setTimeout(speakNext, gap);
+        };
+        window.speechSynthesis.speak(utterance);
+    };
+    speakNext();
 }
 
 const micButton = $('micButton');
@@ -392,9 +441,9 @@ function startRecording() {
         notify('這個瀏覽器不支援網頁語音辨識。iPad 請改用 Safari；也可展開下方備用方式，以鍵盤聽寫後比對。');
         return;
     }
-    if (window.speechSynthesis?.speaking) { notify('請等標準發音播放完畢，再按麥克風。'); return; }
+    if (isSpeaking()) { notify('請等標準發音播放完畢，再按麥克風。'); return; }
     clearTimeout(speakTimer);
-    window.speechSynthesis?.cancel();
+    stopSpeaking();
     clearNotice();
     unlockSound();
     setupRecognition();
@@ -573,7 +622,7 @@ function stopCurrentQuestion() {
     clearTimeout(speakTimer);
     clearTimeout(advanceTimer);
     clearTimeout(recordingTimer);
-    window.speechSynthesis?.cancel();
+    stopSpeaking();
     const oldSession = recognition;
     recognition = null; // Ignore late callbacks from the question we are leaving.
     recordingQuestion = -1;
@@ -616,7 +665,7 @@ function backToParent() {
     clearTimeout(speakTimer);
     clearTimeout(advanceTimer);
     clearNotice();
-    window.speechSynthesis?.cancel();
+    stopSpeaking();
     $('finishScreen').style.display = 'none';
     $('parentScreen').style.display = 'block';
 }
